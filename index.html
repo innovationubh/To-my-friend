@@ -1,203 +1,204 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Memories</title>
-
 <style>
 body{
   margin:0;
-  min-height:100vh;
+  font-family: Arial, sans-serif;
   background:url("IMG_20260223_081611.jpg") no-repeat center center fixed;
   background-size:cover;
-  font-family:Arial;
-  display:flex;
-  justify-content:center;
-  align-items:center;
   text-align:center;
 }
 
-.page{
-  display:none;
-  width:100%;
-  padding:20px;
-}
-
-.active{
-  display:block;
-}
+.hidden{display:none;}
 
 button{
-  padding:18px 40px;
-  font-size:26px;
+  padding:18px 35px;
+  font-size:24px;
   border:none;
   border-radius:40px;
   background:pink;
+  cursor:pointer;
+  margin:15px;
   font-family:cursive;
-  box-shadow:0 5px 15px rgba(0,0,0,0.3);
-  transition:transform 0.2s, background 0.2s;
+  box-shadow:0 0 10px rgba(255,105,180,0.7);
+  transition:transform 0.2s;
 }
+button:active{transform:scale(0.95);}
 
-button:active{
-  transform:scale(0.9);
-  background:#ff9acb;
-}
-
-img{
-  width:90%;
-  max-width:300px;
+#gallery img{
+  width:120px;
   margin:10px;
-  border-radius:15px;
-}
-
-#images{
-  margin-top:20px;
-}
-
-#quoteText{
-  font-style:italic;
-  font-size:20px;
-  margin:20px;
-  color:white;
-  text-shadow:1px 1px 3px black;
+  border-radius:12px;
+  box-shadow:0 0 10px rgba(0,0,0,0.5);
 }
 
 input{
-  padding:10px;
+  padding:12px;
   font-size:18px;
   border-radius:10px;
   border:none;
 }
+
+#quoteText{
+  font-style:italic;
+  font-size:18px;
+  margin:20px;
+}
 </style>
 </head>
+
 <body>
 
-<!-- OPEN GIFT -->
-<div id="giftPage" class="page active">
+<!-- GIFT PAGE -->
+<div id="giftPage">
   <h1>🎁 Open Gift</h1>
   <button onclick="openGift()">Open Gift</button>
 </div>
 
 <!-- MAIN PAGE -->
-<div id="mainPage" class="page">
-  <h1 style="font-family:cursive;color:white;text-shadow:2px 2px 4px black;">Memories</h1>
-  <button onclick="goVerify()">Memories</button>
+<div id="mainPage" class="hidden">
+  <button onclick="openVerify()">Memories</button>
 
-  <div id="images"></div>
+  <div id="gallery"></div>
+
   <div id="quoteText"></div>
-</div>
-
-<!-- VERIFY -->
-<div id="verifyPage" class="page">
-  <h2 style="color:white;text-shadow:1px 1px 3px black;">
-    Dear best friend, it's really you. Verify it.
-  </h2>
-  <button onclick="askPassword()">Verify</button>
-</div>
-
-<!-- PASSWORD -->
-<div id="passwordPage" class="page">
-  <h3 style="color:white;">Enter Password</h3>
-  <input type="password" id="passInput"><br><br>
-  <button onclick="checkPass()">Submit</button>
-</div>
-
-<!-- ADD MEMORIES -->
-<div id="addPage" class="page">
-  <h3 style="color:white;">Add Memories (max 10)</h3>
-  <input type="file" id="fileInput" multiple accept="image/*"><br><br>
-  <button onclick="addImages()">Add</button><br><br>
   <button onclick="leaveQuote()">Leave a Quote</button>
 </div>
 
+<!-- VERIFY PAGE -->
+<div id="verifyPage" class="hidden">
+  <h2>Dear best friend, it's really you. Verify it.</h2>
+  <button onclick="openPassword()">Verify</button>
+</div>
+
+<!-- PASSWORD PAGE -->
+<div id="passwordPage" class="hidden">
+  <h2>Enter Password</h2>
+  <input type="password" id="passwordInput" placeholder="Password">
+  <br><br>
+  <button onclick="checkPassword()">Submit</button>
+</div>
+
+<!-- ADD MEMORY PAGE -->
+<div id="addPage" class="hidden">
+  <h2>Add Memories (max 10)</h2>
+  <input type="file" id="fileInput" multiple accept="image/*">
+  <br><br>
+  <button onclick="addMemories()">Add Memories</button>
+  <br><br>
+  <button onclick="goHome()">Back</button>
+</div>
+
 <script>
-let images = JSON.parse(localStorage.getItem("images")) || [];
+let memories = JSON.parse(localStorage.getItem("memories")) || [];
 let quote = localStorage.getItem("quote") || "";
 
-function show(page){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.getElementById(page).classList.add("active");
+const giftPage = document.getElementById("giftPage");
+const mainPage = document.getElementById("mainPage");
+const verifyPage = document.getElementById("verifyPage");
+const passwordPage = document.getElementById("passwordPage");
+const addPage = document.getElementById("addPage");
+const gallery = document.getElementById("gallery");
+const quoteText = document.getElementById("quoteText");
+
+if(memories.length>0){
+  openGift();
 }
 
 function openGift(){
-  show("mainPage");
+  giftPage.classList.add("hidden");
+  mainPage.classList.remove("hidden");
   showImages();
+  showQuote();
 }
 
-function goVerify(){
-  show("verifyPage");
+function openVerify(){
+  mainPage.classList.add("hidden");
+  verifyPage.classList.remove("hidden");
 }
 
-function askPassword(){
-  show("passwordPage");
+function openPassword(){
+  verifyPage.classList.add("hidden");
+  passwordPage.classList.remove("hidden");
 }
 
-function checkPass(){
-  let p=document.getElementById("passInput").value;
-  if(p==="friendship"){
-    show("addPage");
+function checkPassword(){
+  let pwd=document.getElementById("passwordInput").value;
+  if(pwd==="friendship"){
+    passwordPage.classList.add("hidden");
+    addPage.classList.remove("hidden");
   }else{
     alert("Wrong password");
   }
 }
 
-function addImages(){
-  let files=document.getElementById("fileInput").files;
-  if(images.length+files.length>10){
-    alert("Max 10 images");
+function addMemories(){
+  const files=document.getElementById("fileInput").files;
+
+  if(memories.length+files.length>10){
+    alert("Only 10 images allowed");
     return;
   }
 
   for(let file of files){
-    let reader=new FileReader();
-    reader.onload=e=>{
-      images.push(e.target.result);
-      localStorage.setItem("images",JSON.stringify(images));
+    const reader=new FileReader();
+    reader.onload=function(e){
+      memories.push(e.target.result);
+      localStorage.setItem("memories",JSON.stringify(memories));
       showImages();
-    };
+    }
     reader.readAsDataURL(file);
   }
 
-  show("mainPage");
+  addPage.classList.add("hidden");
+  mainPage.classList.remove("hidden");
 }
 
 function showImages(){
-  let div=document.getElementById("images");
-  div.innerHTML="";
-  images.forEach((src,i)=>{
+  gallery.innerHTML="";
+  memories.forEach((src,index)=>{
     let img=document.createElement("img");
     img.src=src;
 
     let timer;
-    img.addEventListener("touchstart",()=>{
+    img.ontouchstart=()=>{
       timer=setTimeout(()=>{
-        if(confirm("Delete this image?")){
-          images.splice(i,1);
-          localStorage.setItem("images",JSON.stringify(images));
+        if(confirm("Delete this memory?")){
+          memories.splice(index,1);
+          localStorage.setItem("memories",JSON.stringify(memories));
           showImages();
         }
       },1000);
-    });
+    };
+    img.ontouchend=()=>clearTimeout(timer);
 
-    img.addEventListener("touchend",()=>clearTimeout(timer));
-
-    div.appendChild(img);
+    gallery.appendChild(img);
   });
-
-  if(quote){
-    document.getElementById("quoteText").innerText='"'+quote+'"';
-  }
 }
 
 function leaveQuote(){
-  let q=prompt("Write your quote:");
+  let q=prompt("Write your quote");
   if(q){
     quote=q;
     localStorage.setItem("quote",quote);
-    showImages();
+    showQuote();
   }
+}
+
+function showQuote(){
+  if(quote){
+    quoteText.innerHTML='"'+quote+'"';
+  }
+}
+
+function goHome(){
+  addPage.classList.add("hidden");
+  mainPage.classList.remove("hidden");
 }
 </script>
 
 </body>
-</html>
+  </html>
